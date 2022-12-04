@@ -96,9 +96,37 @@ def puzzle_2022_3_2(input=None):
     return ans
 
 
+def puzzle_2022_4_1(input=None):
+    ans = 0
+    for line in input.split('\n'):
+        edges_list = []
+        for i in line.split(','):
+            for j in i.split('-'):
+                edges_list.append(int(j))
+        if ((edges_list[2] <= edges_list[0] and edges_list[1] <= edges_list[3]) or (
+                edges_list[0] <= edges_list[2] and edges_list[3] <= edges_list[1])):
+            ans += 1
+    return ans
+
+
+def puzzle_2022_4_2(input=None):
+    ans = 0
+    for line in input.split('\n'):
+        edges_list = []
+        for i in line.split(','):
+            for j in i.split('-'):
+                edges_list.append(int(j))
+        if (edges_list[1] > edges_list[3]):
+            (edges_list[0], edges_list[1], edges_list[2], edges_list[3]) = (
+            edges_list[2], edges_list[3], edges_list[0], edges_list[1])
+        if (edges_list[2] <= edges_list[1]):
+            ans += 1
+    return ans
+
+
 if __name__ == '__main__':
     year = 2022
-    day = 3
+    day = 4
     part = 2
     puzzle = Puzzle(year=year, day=day, )
     fname = "puzzle_" + str(year) + "_" + str(day) + "_" + str(part)
