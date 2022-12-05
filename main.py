@@ -1,5 +1,7 @@
 from aocd.models import Puzzle
 from queue import PriorityQueue
+from collections import deque
+import string
 
 
 def puzzle_2022_1_1(input=None):
@@ -118,21 +120,67 @@ def puzzle_2022_4_2(input=None):
                 edges_list.append(int(j))
         if (edges_list[1] > edges_list[3]):
             (edges_list[0], edges_list[1], edges_list[2], edges_list[3]) = (
-            edges_list[2], edges_list[3], edges_list[0], edges_list[1])
+                edges_list[2], edges_list[3], edges_list[0], edges_list[1])
         if (edges_list[2] <= edges_list[1]):
             ans += 1
     return ans
 
 
+def puzzle_2022_5_1(input=None):
+    move_flag = False
+    nr_of_stacks = (len(input.split('\n')[0]) + 1) // 4
+    stacks = [deque() for _ in range(nr_of_stacks)]
+    ans = ""
+    for line in input.split('\n'):
+        if (not move_flag):
+            if (len(line) == 0):
+                move_flag = True
+            else:
+                for i in range(nr_of_stacks):
+                    if (line[1 + 4 * i] != ' '):
+                        stacks[i].appendleft(line[1 + 4 * i])
+        else:
+            command = line.split(" ")
+            for i in range(int(command[1])):
+                stacks[int(command[5]) - 1].append(stacks[int(command[3]) - 1].pop())
+    for st in stacks:
+        ans += st.pop()
+    return ans
+
+
+def puzzle_2022_5_2(input=None):
+    move_flag = False
+    nr_of_stacks = (len(input.split('\n')[0]) + 1) // 4
+    stacks = [[] for _ in range(nr_of_stacks)]
+    ans = ""
+    for line in input.split('\n'):
+        if (not move_flag):
+            if (len(line) == 0):
+                move_flag = True
+            else:
+                for i in range(nr_of_stacks):
+                    if (line[1 + 4 * i] != ' '):
+                        stacks[i].insert(0, line[1 + 4 * i])
+        else:
+            command = line.split(" ")
+            stacks[int(command[5]) - 1]+=(stacks[int(command[3]) - 1][-int(command[1]):])
+            stacks[int(command[3]) - 1] = stacks[int(command[3]) - 1][:-int(command[1])]
+    for st in stacks:
+        ans += st.pop()
+    return ans
+
+
 if __name__ == '__main__':
     year = 2022
-    day = 4
+    day = 5
     part = 2
+    send = False
     puzzle = Puzzle(year=year, day=day, )
     fname = "puzzle_" + str(year) + "_" + str(day) + "_" + str(part)
     answer = globals()[fname](puzzle.input_data)
     print(answer)
-    if part == 1:
-        puzzle.answer_a = answer
-    elif part == 2:
-        puzzle.answer_b = answer
+    if (send):
+        if part == 1:
+            puzzle.answer_a = answer
+        elif part == 2:
+            puzzle.answer_b = answer
