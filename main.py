@@ -163,16 +163,36 @@ def puzzle_2022_5_2(input=None):
                         stacks[i].insert(0, line[1 + 4 * i])
         else:
             command = line.split(" ")
-            stacks[int(command[5]) - 1]+=(stacks[int(command[3]) - 1][-int(command[1]):])
+            stacks[int(command[5]) - 1] += (stacks[int(command[3]) - 1][-int(command[1]):])
             stacks[int(command[3]) - 1] = stacks[int(command[3]) - 1][:-int(command[1])]
     for st in stacks:
         ans += st.pop()
     return ans
 
 
+def puzzle_2022_6_1(input=None):
+    l = 0
+    for r in range(0, len(input) - 1):
+        if (r - l >= 4):
+            return r
+        for i in range(l, r + 1):
+            if (input[i] == input[r + 1]):
+                l = i + 1
+
+
+def puzzle_2022_6_2(input=None):
+    l = 0
+    for r in range(0, len(input) - 1):
+        if (r - l >= 14):
+            return r
+        for i in range(l, r + 1):
+            if (input[i] == input[r + 1]):
+                l = i + 1
+
+
 if __name__ == '__main__':
     year = 2022
-    day = 5
+    day = 6
     part = 2
     send = False
     puzzle = Puzzle(year=year, day=day, )
