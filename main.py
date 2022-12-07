@@ -178,6 +178,9 @@ def puzzle_2022_6_1(input=None):
         for i in range(l, r + 1):
             if (input[i] == input[r + 1]):
                 l = i + 1
+                break
+
+
 
 
 def puzzle_2022_6_2(input=None):
@@ -188,12 +191,75 @@ def puzzle_2022_6_2(input=None):
         for i in range(l, r + 1):
             if (input[i] == input[r + 1]):
                 l = i + 1
+                break
 
+class File:
+
+    def __init__(self,name, type, parent, size=None, children=[]):
+        self.name=name
+        self.type=type
+        self.parent=parent
+        self.size=size
+        self.children=children
+    def get_size(self):
+        if(self.size==None):
+            self.size = sum([_.get_size() for _ in self.children])
+        return self.size
+    def size_recursion(self, limit):
+        if(self.typ=="txt"):
+            return 0
+        ret_size=0
+        if(self.get_size()<=limit):
+            ret_size+=self.get_size()
+        return ret_size+sum([_.size_recursion(limit) for _ in self.children])
+    def get_child(self,child_name):
+        for i in self.children:
+            if(i.name==child_name):
+                return i
+        print("no child ",child_name," found")
+        return None
+    def print(self,offset=0):
+        if(offset>=10):
+            return
+        print(" "*offset,"- ", self.name, " ( ",self.type, " )")
+        if(self.type=="dir"):
+            for i in self.children:
+                i.print(offset+2)
+
+
+
+def puzzle_2022_7_1(input=None):
+    root=File("root","dir",None)
+    wd=None
+    k=0
+    for line in input.split('\n'):
+        com=line.split(' ')
+        if(com[1]=="cd"):
+            if(wd!=None):
+                print(wd.name)
+            if(com[2]=="/"):
+                wd=root
+            elif(com[2]==".."):
+                wd=wd.parent
+                k-=1
+            else:
+                k+=1
+                if(wd==None):
+                    pass
+                    #root.print()
+                wd=wd.get_child(com[2])
+        elif(com[0]!="$"):
+            if(com[0]=="dir"):
+                wd.children.append(File(com[1],"dir",wd))
+            else:
+                wd.children.append(File(com[1], "txt",wd , int(com[0])))
+
+    return root.size_recursion(100000)
 
 if __name__ == '__main__':
     year = 2022
-    day = 6
-    part = 2
+    day = 7
+    part = 1
     send = False
     puzzle = Puzzle(year=year, day=day, )
     fname = "puzzle_" + str(year) + "_" + str(day) + "_" + str(part)
