@@ -1,6 +1,7 @@
 from aocd.models import Puzzle
 from queue import PriorityQueue
 from collections import deque
+import math
 import string
 
 
@@ -181,8 +182,6 @@ def puzzle_2022_6_1(input=None):
                 break
 
 
-
-
 def puzzle_2022_6_2(input=None):
     l = 0
     for r in range(0, len(input) - 1):
@@ -193,74 +192,104 @@ def puzzle_2022_6_2(input=None):
                 l = i + 1
                 break
 
+
 class File:
 
-    def __init__(self,name, type, parent, size=None, children=[]):
-        self.name=name
-        self.type=type
-        self.parent=parent
-        self.size=size
-        self.children=children
+    def __init__(self, name, type, parent, size=None, children=None):
+        self.name = name
+        self.type = type
+        self.parent = parent
+        self.size = size
+        if(children==None):
+            self.children=[]
+        else:
+            self.children = children
+
     def get_size(self):
-        if(self.size==None):
+        if (self.size == None):
             self.size = sum([_.get_size() for _ in self.children])
         return self.size
-    def size_recursion(self, limit):
-        if(self.typ=="txt"):
-            return 0
-        ret_size=0
-        if(self.get_size()<=limit):
-            ret_size+=self.get_size()
-        return ret_size+sum([_.size_recursion(limit) for _ in self.children])
-    def get_child(self,child_name):
-        for i in self.children:
-            if(i.name==child_name):
-                return i
-        print("no child ",child_name," found")
-        return None
-    def print(self,offset=0):
-        if(offset>=10):
-            return
-        print(" "*offset,"- ", self.name, " ( ",self.type, " )")
-        if(self.type=="dir"):
-            for i in self.children:
-                i.print(offset+2)
 
+    def size_recursion(self, limit):
+        if (self.type == "txt"):
+            return 0
+        ret_size = 0
+        if (self.get_size() <= limit):
+            ret_size += self.get_size()
+        return ret_size + sum([_.size_recursion(limit) for _ in self.children])
+
+    def smol_recursion(self, limit):
+        if (self.type == "txt"):
+            return math.inf
+        child_value = min([_.smol_recursion(limit) for _ in self.children])
+        child_value = math.inf if child_value==0 else child_value
+        if(self.get_size() <= limit):
+            return child_value
+        else:
+            return min(self.get_size(),child_value)
+
+
+    def get_child(self, child_name):
+        for i in self.children:
+            if (i.name == child_name):
+                return i
+        print("no child ", child_name, " found")
+        return None
+
+    def print_tree(self, offset=0):
+        if (offset >= 3):
+            return
+        print(" " * offset, "- ", self.name, " ( ", self.type, " )")
+        if (self.type == "dir"):
+            for i in self.children:
+                i.print_tree(offset + 2)
 
 
 def puzzle_2022_7_1(input=None):
-    root=File("root","dir",None)
-    wd=None
-    k=0
+    root = File("root", "dir", None)
+    wd = None
     for line in input.split('\n'):
-        com=line.split(' ')
-        if(com[1]=="cd"):
-            if(wd!=None):
-                print(wd.name)
-            if(com[2]=="/"):
-                wd=root
-            elif(com[2]==".."):
-                wd=wd.parent
-                k-=1
+        com = line.split(' ')
+        if (com[1] == "cd"):
+            if (com[2] == "/"):
+                wd = root
+            elif (com[2] == ".."):
+                wd = wd.parent
             else:
-                k+=1
-                if(wd==None):
-                    pass
-                    #root.print()
-                wd=wd.get_child(com[2])
-        elif(com[0]!="$"):
-            if(com[0]=="dir"):
-                wd.children.append(File(com[1],"dir",wd))
+                wd = wd.get_child(com[2])
+        elif (com[0] != "$"):
+            if (com[0] == "dir"):
+                wd.children.append(File(com[1], "dir", wd))
             else:
-                wd.children.append(File(com[1], "txt",wd , int(com[0])))
+                wd.children.append(File(com[1], "txt", wd, int(com[0])))
 
     return root.size_recursion(100000)
+
+def puzzle_2022_7_2(input=None):
+    root = File("root", "dir", None)
+    wd = None
+    for line in input.split('\n'):
+        com = line.split(' ')
+        if (com[1] == "cd"):
+            if (com[2] == "/"):
+                wd = root
+            elif (com[2] == ".."):
+                wd = wd.parent
+            else:
+                wd = wd.get_child(com[2])
+        elif (com[0] != "$"):
+            if (com[0] == "dir"):
+                wd.children.append(File(com[1], "dir", wd))
+            else:
+                wd.children.append(File(com[1], "txt", wd, int(com[0])))
+    print(30000000-(70000000-root.get_size()))
+    return root.smol_recursion(30000000-(70000000-root.get_size()))
 
 if __name__ == '__main__':
     year = 2022
     day = 7
-    part = 1
-    send = False
+    part = 2
+    send = True
     puzzle = Puzzle(year=year, day=day, )
     fname = "puzzle_" + str(year) + "_" + str(day) + "_" + str(part)
     answer = globals()[fname](puzzle.input_data)
