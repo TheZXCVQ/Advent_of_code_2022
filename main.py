@@ -2,6 +2,7 @@ from aocd.models import Puzzle
 from queue import PriorityQueue
 from collections import deque
 import math
+import numpy as np
 import string
 
 
@@ -200,8 +201,8 @@ class File:
         self.type = type
         self.parent = parent
         self.size = size
-        if(children==None):
-            self.children=[]
+        if (children == None):
+            self.children = []
         else:
             self.children = children
 
@@ -222,12 +223,11 @@ class File:
         if (self.type == "txt"):
             return math.inf
         child_value = min([_.smol_recursion(limit) for _ in self.children])
-        child_value = math.inf if child_value==0 else child_value
-        if(self.get_size() <= limit):
+        child_value = math.inf if child_value == 0 else child_value
+        if (self.get_size() <= limit):
             return child_value
         else:
-            return min(self.get_size(),child_value)
-
+            return min(self.get_size(), child_value)
 
     def get_child(self, child_name):
         for i in self.children:
@@ -265,6 +265,7 @@ def puzzle_2022_7_1(input=None):
 
     return root.size_recursion(100000)
 
+
 def puzzle_2022_7_2(input=None):
     root = File("root", "dir", None)
     wd = None
@@ -282,14 +283,32 @@ def puzzle_2022_7_2(input=None):
                 wd.children.append(File(com[1], "dir", wd))
             else:
                 wd.children.append(File(com[1], "txt", wd, int(com[0])))
-    print(30000000-(70000000-root.get_size()))
-    return root.smol_recursion(30000000-(70000000-root.get_size()))
+    print(30000000 - (70000000 - root.get_size()))
+    return root.smol_recursion(30000000 - (70000000 - root.get_size()))
+
+
+def puzzle_2022_8_1(input=None):
+    input_array = np.array(list(map(lambda x: list(map(int, [*x])), input.split('\n'))))
+    length = input_array.shape[0]
+    visibility_array = np.zeros(shape=(length, length, 4))
+    for i in [0, -1]:
+        visibility_array[i, :, :] = True
+        visibility_array[:, i, :] = True
+    for i in range(1, length):
+        visibility_array[i, 1:-1, 0] = input_array[i, 1:-1] > np.max(input_array[:i, 1:-1], axis=0)
+        visibility_array[1:-1, i, 2] = input_array[1:-1, i] > np.max(input_array[1:-1, :i], axis=1)
+        visibility_array[length - i - 1, 1:-1, 1] = input_array[length - i - 1, 1:-1] > np.max(
+            input_array[(length - i):, 1:-1], axis=0)
+        visibility_array[1:-1, length - i - 1, 3] = input_array[1:-1, length - i - 1] > np.max(
+            input_array[1:-1, (length - i):], axis=1)
+    return np.sum(np.any(visibility_array, axis=2))
+
 
 if __name__ == '__main__':
     year = 2022
-    day = 7
-    part = 2
-    send = True
+    day = 8
+    part = 1
+    send = False
     puzzle = Puzzle(year=year, day=day, )
     fname = "puzzle_" + str(year) + "_" + str(day) + "_" + str(part)
     answer = globals()[fname](puzzle.input_data)
