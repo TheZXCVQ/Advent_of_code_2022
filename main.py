@@ -303,11 +303,52 @@ def puzzle_2022_8_1(input=None):
             input_array[1:-1, (length - i):], axis=1)
     return np.sum(np.any(visibility_array, axis=2))
 
+def puzzle_2022_9_1(input=None):
+    Head = np.array([0, 0])
+    Tail = np.array([0, 0])
+    Dict_positions = {(0, 0): True}
+    for line in input.split('\n'):
+        word=line.split(' ')
+        if(word[0]=='D'):
+            change_vector = [0,-1]
+        elif(word[0]=='U'):
+            change_vector = [0, 1]
+        elif(word[0]=='L'):
+            change_vector = [-1,0]
+        elif(word[0]=='R'):
+            change_vector = [1,0]
+        for i in range(int(word[1])):
+            Head+=change_vector
+            if(np.any(np.abs(Head-Tail)>=2)):
+                Tail+=np.sign(Head-Tail)
+                Dict_positions[tuple(Tail)]=True
+    return len(Dict_positions)
+
+def puzzle_2022_9_2(input=None):
+    Snake = np.zeros(shape=(10,2))
+    Dict_positions = {(0, 0): True}
+    for line in input.split('\n'):
+        word=line.split(' ')
+        if(word[0]=='D'):
+            change_vector = [0,-1]
+        elif(word[0]=='U'):
+            change_vector = [0, 1]
+        elif(word[0]=='L'):
+            change_vector = [-1,0]
+        elif(word[0]=='R'):
+            change_vector = [1,0]
+        for i in range(int(word[1])):
+            Snake[0]+=change_vector
+            for i in range(0,9):
+                if(np.any(np.abs(Snake[i]-Snake[i+1])>=2)):
+                    Snake[i+1]+=np.sign(Snake[i]-Snake[i+1])
+            Dict_positions[tuple(Snake[9])]=True
+    return len(Dict_positions)
 
 if __name__ == '__main__':
     year = 2022
-    day = 8
-    part = 1
+    day = 9
+    part = 2
     send = False
     puzzle = Puzzle(year=year, day=day, )
     fname = "puzzle_" + str(year) + "_" + str(day) + "_" + str(part)
