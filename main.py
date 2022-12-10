@@ -345,9 +345,40 @@ def puzzle_2022_9_2(input=None):
             Dict_positions[tuple(Snake[9])]=True
     return len(Dict_positions)
 
+def puzzle_2022_10_1(input=None):
+    lines = input.split('\n')
+    xvalue = np.full( shape=(len(lines)*2+1),fill_value=1)
+    current_clock=1
+    for line in lines:
+        words=line.split(' ')
+        if(words[0]=="noop"):
+            current_clock+=1
+        else:
+            xvalue[current_clock+2:]+= int(words[1])
+            current_clock+=2
+    xvalue*=np.arange(0,len(xvalue))
+    return np.sum(xvalue[[20, 60, 100, 140, 180, 220]])
+
+def puzzle_2022_10_2(input=None):
+    lines = input.split('\n')
+    xvalue = np.full( shape=(len(lines)*2+1),fill_value=1)
+    current_clock=1
+    for line in lines:
+        words=line.split(' ')
+        if(words[0]=="noop"):
+            current_clock+=1
+        else:
+            xvalue[current_clock+2:]+= int(words[1])
+            current_clock+=2
+    screen=np.zeros(shape=(6,40), dtype=int)
+    for i in range(6):
+        for j in range(1,41):
+            if( j == xvalue[i*40+j] or j == xvalue[i*40+j]+1 or j == xvalue[i*40+j]+2):
+                screen[i,j-1]=1
+    return screen
 if __name__ == '__main__':
     year = 2022
-    day = 9
+    day = 10
     part = 2
     send = False
     puzzle = Puzzle(year=year, day=day, )
