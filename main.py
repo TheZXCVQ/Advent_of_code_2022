@@ -303,84 +303,112 @@ def puzzle_2022_8_1(input=None):
             input_array[1:-1, (length - i):], axis=1)
     return np.sum(np.any(visibility_array, axis=2))
 
+
+def puzzle_2022_8_2(input=None):
+    input_array = np.array(list(map(lambda x: list(map(int, [*x])), input.split('\n'))))
+    length = input_array.shape[0]
+    visibility_array = np.zeros(shape=(length, length, 4), dtype=int)
+    last_seen = np.zeros(shape=(10, 4))
+    for i in range(0, length):
+        last_seen = np.zeros(shape=(10, 4))
+        last_seen[:, [1, 3]] = length - 1
+        for j in range(0, length):
+            visibility_array[i, j, 0] = j - max(last_seen[input_array[i, j]:, 0])
+            last_seen[input_array[i, j], 0] = j
+            visibility_array[j, i, 2] = j - max(last_seen[input_array[j, i]:, 2])
+            last_seen[input_array[j, i], 2] = j
+            visibility_array[i, length - j - 1, 1] = min(last_seen[input_array[i, length - j - 1]:, 1]) - (
+                        length - j - 1)
+            last_seen[input_array[i, (length - j - 1)], 1] = (length - j - 1)
+            visibility_array[length - j - 1, i, 3] = min(last_seen[input_array[length - j - 1, i]:, 3]) - (
+                        length - j - 1)
+            last_seen[input_array[(length - j - 1), i], 3] = (length - j - 1)
+    return np.max(np.prod(visibility_array, axis=2))
+
+
 def puzzle_2022_9_1(input=None):
     Head = np.array([0, 0])
     Tail = np.array([0, 0])
     Dict_positions = {(0, 0): True}
     for line in input.split('\n'):
-        word=line.split(' ')
-        if(word[0]=='D'):
-            change_vector = [0,-1]
-        elif(word[0]=='U'):
+        word = line.split(' ')
+        if (word[0] == 'D'):
+            change_vector = [0, -1]
+        elif (word[0] == 'U'):
             change_vector = [0, 1]
-        elif(word[0]=='L'):
-            change_vector = [-1,0]
-        elif(word[0]=='R'):
-            change_vector = [1,0]
+        elif (word[0] == 'L'):
+            change_vector = [-1, 0]
+        elif (word[0] == 'R'):
+            change_vector = [1, 0]
         for i in range(int(word[1])):
-            Head+=change_vector
-            if(np.any(np.abs(Head-Tail)>=2)):
-                Tail+=np.sign(Head-Tail)
-                Dict_positions[tuple(Tail)]=True
+            Head += change_vector
+            if (np.any(np.abs(Head - Tail) >= 2)):
+                Tail += np.sign(Head - Tail)
+                Dict_positions[tuple(Tail)] = True
     return len(Dict_positions)
 
+
 def puzzle_2022_9_2(input=None):
-    Snake = np.zeros(shape=(10,2))
+    Snake = np.zeros(shape=(10, 2))
     Dict_positions = {(0, 0): True}
     for line in input.split('\n'):
-        word=line.split(' ')
-        if(word[0]=='D'):
-            change_vector = [0,-1]
-        elif(word[0]=='U'):
+        word = line.split(' ')
+        if (word[0] == 'D'):
+            change_vector = [0, -1]
+        elif (word[0] == 'U'):
             change_vector = [0, 1]
-        elif(word[0]=='L'):
-            change_vector = [-1,0]
-        elif(word[0]=='R'):
-            change_vector = [1,0]
+        elif (word[0] == 'L'):
+            change_vector = [-1, 0]
+        elif (word[0] == 'R'):
+            change_vector = [1, 0]
         for i in range(int(word[1])):
-            Snake[0]+=change_vector
-            for i in range(0,9):
-                if(np.any(np.abs(Snake[i]-Snake[i+1])>=2)):
-                    Snake[i+1]+=np.sign(Snake[i]-Snake[i+1])
-            Dict_positions[tuple(Snake[9])]=True
+            Snake[0] += change_vector
+            for i in range(0, 9):
+                if (np.any(np.abs(Snake[i] - Snake[i + 1]) >= 2)):
+                    Snake[i + 1] += np.sign(Snake[i] - Snake[i + 1])
+            Dict_positions[tuple(Snake[9])] = True
     return len(Dict_positions)
+
 
 def puzzle_2022_10_1(input=None):
     lines = input.split('\n')
-    xvalue = np.full( shape=(len(lines)*2+1),fill_value=1)
-    current_clock=1
+    xvalue = np.full(shape=(len(lines) * 2 + 1), fill_value=1)
+    current_clock = 1
     for line in lines:
-        words=line.split(' ')
-        if(words[0]=="noop"):
-            current_clock+=1
+        words = line.split(' ')
+        if (words[0] == "noop"):
+            current_clock += 1
         else:
-            xvalue[current_clock+2:]+= int(words[1])
-            current_clock+=2
-    xvalue*=np.arange(0,len(xvalue))
+            xvalue[current_clock + 2:] += int(words[1])
+            current_clock += 2
+    xvalue *= np.arange(0, len(xvalue))
     return np.sum(xvalue[[20, 60, 100, 140, 180, 220]])
+
 
 def puzzle_2022_10_2(input=None):
     lines = input.split('\n')
-    xvalue = np.full( shape=(len(lines)*2+1),fill_value=1)
-    current_clock=1
+    xvalue = np.full(shape=(len(lines) * 2 + 1), fill_value=1)
+    current_clock = 1
     for line in lines:
-        words=line.split(' ')
-        if(words[0]=="noop"):
-            current_clock+=1
+        words = line.split(' ')
+        if (words[0] == "noop"):
+            current_clock += 1
         else:
-            xvalue[current_clock+2:]+= int(words[1])
-            current_clock+=2
-    screen=np.zeros(shape=(6,40), dtype=int)
+            xvalue[current_clock + 2:] += int(words[1])
+            current_clock += 2
+    screen = np.zeros(shape=(6, 40), dtype=int)
     for i in range(6):
-        for j in range(1,41):
-            if( j == xvalue[i*40+j] or j == xvalue[i*40+j]+1 or j == xvalue[i*40+j]+2):
-                screen[i,j-1]=1
+        for j in range(1, 41):
+            if (j == xvalue[i * 40 + j] or j == xvalue[i * 40 + j] + 1 or j == xvalue[i * 40 + j] + 2):
+                screen[i, j - 1] = 1
     return screen
+
+
 if __name__ == '__main__':
     year = 2022
-    day = 10
+    day = 8
     part = 2
-    send = False
+    send = True
     puzzle = Puzzle(year=year, day=day, )
     fname = "puzzle_" + str(year) + "_" + str(day) + "_" + str(part)
     answer = globals()[fname](puzzle.input_data)
