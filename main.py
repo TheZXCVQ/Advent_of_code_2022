@@ -3,6 +3,7 @@ from queue import PriorityQueue
 from collections import deque
 import math
 import numpy as np
+from heapq import nlargest
 import string
 
 
@@ -318,10 +319,10 @@ def puzzle_2022_8_2(input=None):
             visibility_array[j, i, 2] = j - max(last_seen[input_array[j, i]:, 2])
             last_seen[input_array[j, i], 2] = j
             visibility_array[i, length - j - 1, 1] = min(last_seen[input_array[i, length - j - 1]:, 1]) - (
-                        length - j - 1)
+                    length - j - 1)
             last_seen[input_array[i, (length - j - 1)], 1] = (length - j - 1)
             visibility_array[length - j - 1, i, 3] = min(last_seen[input_array[length - j - 1, i]:, 3]) - (
-                        length - j - 1)
+                    length - j - 1)
             last_seen[input_array[(length - j - 1), i], 3] = (length - j - 1)
     return np.max(np.prod(visibility_array, axis=2))
 
@@ -404,11 +405,75 @@ def puzzle_2022_10_2(input=None):
     return screen
 
 
+class Monkey:
+    def __init__(self, items=None, operation=None, post_operation=None, modulo=1, test_results=None):
+        self.items = items
+        self.operation = operation
+        self.post_operation = post_operation
+        self.modulo = modulo
+        self.test_results = test_results
+        self.monkey_bussiness = 0
+
+    def inspect(self, item):
+        for op in [self.operation, self.post_operation]:
+            first = str(item) if op[0] == "old" else op[0]
+            second = str(item) if op[2] == "old" else op[2]
+            item = eval(first + op[1] + second)
+        self.monkey_bussiness += 1
+        return item
+
+    def test(self, item):
+        return self.test_results[0] if item % self.modulo == 0 else self.test_results[1]
+
+
+def puzzle_2022_11_1(input=None):
+    monkeys = []
+    for monkey in input.split("\n\n"):
+        monkey_data = monkey.split('\n')
+        starting_items = list(map(int, monkey_data[1].split(':')[1].split(",")))
+        operation = monkey_data[2].split(' ')[-3:]
+        modulo = int(monkey_data[3].split(' ')[-1])
+        test_results = [int(monkey_data[4].split(' ')[-1]), int(monkey_data[5].split(' ')[-1])]
+        post_operation = ["old", "//", "3"]
+        monkeys.append(Monkey(starting_items, operation, post_operation, modulo, test_results))
+    for round_nr in range(20):
+        for monkey in monkeys:
+            for item in monkey.items:
+                worry_level = monkey.inspect(item)
+                monkeys[monkey.test(worry_level)].items.append(worry_level)
+            monkey.items = []
+
+    return int(np.product(nlargest(2, [_.monkey_bussiness for _ in monkeys])))
+
+
+def puzzle_2022_11_2(input=None):
+    monkeys = []
+    for monkey in input.split("\n\n"):
+        monkey_data = monkey.split('\n')
+        starting_items = list(map(int, monkey_data[1].split(':')[1].split(",")))
+        operation = monkey_data[2].split(' ')[-3:]
+        modulo = int(monkey_data[3].split(' ')[-1])
+        test_results = [int(monkey_data[4].split(' ')[-1]), int(monkey_data[5].split(' ')[-1])]
+        post_operation = ["old", "%"]
+        monkeys.append(Monkey(starting_items, operation, post_operation, modulo, test_results))
+    macro_modulo = int(np.product([_.modulo for _ in monkeys]))
+    for monkey in monkeys:
+        monkey.post_operation.append(str(macro_modulo))
+    for round_nr in range(10000):
+        for monkey in monkeys:
+            for item in monkey.items:
+                worry_level = monkey.inspect(item)
+                monkeys[monkey.test(worry_level)].items.append(worry_level)
+            monkey.items = []
+
+    return int(np.product(nlargest(2, [_.monkey_bussiness for _ in monkeys])))
+
+
 if __name__ == '__main__':
     year = 2022
-    day = 8
+    day = 11
     part = 2
-    send = True
+    send = False
     puzzle = Puzzle(year=year, day=day, )
     fname = "puzzle_" + str(year) + "_" + str(day) + "_" + str(part)
     answer = globals()[fname](puzzle.input_data)
