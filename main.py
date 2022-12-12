@@ -469,10 +469,45 @@ def puzzle_2022_11_2(input=None):
     return int(np.product(nlargest(2, [_.monkey_bussiness for _ in monkeys])))
 
 
+def puzzle_2022_12_1(input=None):
+    input_array = np.array(list(map(lambda x: list(map(ord, [*x])), input.split('\n'))))
+    directions = np.array([[1, 0], [-1, 0], [0, 1], [0, -1]])
+
+    start_point = np.where(input_array == ord('S'))
+    start_point = (start_point[0][0], start_point[1][0])
+    input_array[start_point] = ord('a')
+
+    end_point = np.where(input_array == ord('E'))
+    end_point = (end_point[0][0], end_point[1][0])
+    input_array[end_point] = max(input_array[(directions + end_point).T[0], (directions + end_point).T[1]])
+
+    g_score = np.full_like(input_array, input_array.shape[0] * input_array.shape[1])
+    g_score[start_point] = 0
+    f_score = np.full_like(input_array, input_array.shape[0] * input_array.shape[1])
+    f_score[start_point] = np.maximum(np.sum(abs(np.array(end_point) - start_point)),
+                                      input_array[end_point] - input_array[start_point])
+    points_to_discover = PriorityQueue()
+    points_to_discover.put((f_score[start_point], start_point))
+    while not points_to_discover.empty():
+        current = points_to_discover.get()[1]
+        if current == end_point:
+            return g_score[end_point]
+        for direction in directions:
+            neighbor = tuple(current + direction)
+            if (neighbor[0] >= 0 and neighbor[0] < input_array.shape[0] and neighbor[1] >= 0 and neighbor[1] <
+                    input_array.shape[1]):
+                if (input_array[neighbor] - input_array[current] <= 1):
+                    if (g_score[current] + 1 < g_score[neighbor]):
+                        g_score[neighbor] = g_score[current] + 1
+                        f_score[neighbor] = g_score[current] + 1 + np.maximum(
+                            np.sum(abs(np.array(end_point) - neighbor)), input_array[end_point] - input_array[neighbor])
+                        points_to_discover.put((f_score[neighbor], neighbor))
+
+
 if __name__ == '__main__':
     year = 2022
-    day = 11
-    part = 2
+    day = 12
+    part = 1
     send = False
     puzzle = Puzzle(year=year, day=day, )
     fname = "puzzle_" + str(year) + "_" + str(day) + "_" + str(part)
