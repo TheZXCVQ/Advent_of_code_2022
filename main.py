@@ -4,6 +4,7 @@ from collections import deque
 import math
 import numpy as np
 from heapq import nlargest
+from functools import cmp_to_key
 import string
 
 
@@ -535,11 +536,98 @@ def puzzle_2022_12_2(input=None):
                         points_to_discover.put((g_score[neighbor], neighbor))
 
 
+def puzzle_2022_13_1(input=None):
+    def list_parser(str_input):
+        stack = [[]]
+        for element in str_input.split(','):
+            num_str = ""
+            for letter in element:
+                if (letter == '['):
+                    stack.append([])
+                elif (letter == ']'):
+                    if (num_str != ""):
+                        stack[-1].append(int(num_str))
+                        num_str = ""
+                    temp = stack.pop()
+                    stack[-1].append(temp)
+                else:
+                    num_str += letter
+            if (num_str != ''):
+                stack[-1].append(int(num_str))
+        return stack[0][0]
+
+    def compare(left, right):
+        iflint = type(left) == int
+        ifrint = type(right) == int
+        if (iflint or ifrint):
+            if (iflint and ifrint):
+                return np.sign(right - left)
+            elif iflint:
+                return compare([left], right)
+            elif ifrint:
+                return compare(left, [right])
+        else:
+            for i in range(min(len(left), len(right))):
+                if (compare(left[i], right[i]) != 0):
+                    return compare(left[i], right[i])
+            return np.sign(len(right) - len(left))
+
+    sum = 0
+    for count, pairs in enumerate(input.split('\n\n'), start=1):
+        pairs = pairs.split('\n')
+        if (compare(list_parser(pairs[0]), list_parser(pairs[1])) == 1):
+            sum += count
+    return sum
+
+
+def puzzle_2022_13_2(input=None):
+    def list_parser(str_input):
+        stack = [[]]
+        for element in str_input.split(','):
+            num_str = ""
+            for letter in element:
+                if (letter == '['):
+                    stack.append([])
+                elif (letter == ']'):
+                    if (num_str != ""):
+                        stack[-1].append(int(num_str))
+                        num_str = ""
+                    temp = stack.pop()
+                    stack[-1].append(temp)
+                else:
+                    num_str += letter
+            if (num_str != ''):
+                stack[-1].append(int(num_str))
+        return stack[0][0]
+
+    def compare(left, right):
+        iflint = type(left) == int
+        ifrint = type(right) == int
+        if (iflint or ifrint):
+            if (iflint and ifrint):
+                return np.sign(right - left)
+            elif iflint:
+                return compare([left], right)
+            elif ifrint:
+                return compare(left, [right])
+        else:
+            for i in range(min(len(left), len(right))):
+                if (compare(left[i], right[i]) != 0):
+                    return compare(left[i], right[i])
+            return np.sign(len(right) - len(left))
+
+    input_list = list(map(list_parser, input.replace("\n\n", "\n").split('\n')))
+    input_list.append([[2]])
+    input_list.append([[6]])
+    input_list.sort(key=cmp_to_key(compare), reverse=True)
+    return (input_list.index([[6]]) + 1) * (input_list.index([[2]]) + 1)
+
+
 if __name__ == '__main__':
     year = 2022
-    day = 12
+    day = 13
     part = 2
-    send = True
+    send = False
     puzzle = Puzzle(year=year, day=day, )
     fname = "puzzle_" + str(year) + "_" + str(day) + "_" + str(part)
     answer = globals()[fname](puzzle.input_data)
