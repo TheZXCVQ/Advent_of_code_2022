@@ -622,72 +622,76 @@ def puzzle_2022_13_2(input=None):
     input_list.sort(key=cmp_to_key(compare), reverse=True)
     return (input_list.index([[6]]) + 1) * (input_list.index([[2]]) + 1)
 
+
 def puzzle_2022_14_1(input=None):
-    input_list = list(map(lambda x: list(map(  lambda y: np.array(list(map(int, y.split(',')))),x.split('->'))), input.split('\n')))
-    grid=np.zeros(shape=(1000,1000),dtype=int)
+    input_list = list(
+        map(lambda x: list(map(lambda y: np.array(list(map(int, y.split(',')))), x.split('->'))), input.split('\n')))
+    grid = np.zeros(shape=(1000, 1000), dtype=int)
     for line in input_list:
-        for pair_num in range(len(line)-1):
-            pair_diffrence = line[pair_num+1]-line[pair_num]
-            if( pair_diffrence[0]==0 ):
-                bigger = line[pair_num+1] if pair_diffrence[1]>0 else line[pair_num]
-                grid[ line[pair_num][0], (bigger-abs(pair_diffrence))[1]: bigger[1]+1 ] = 1
-            elif( pair_diffrence[1]==0 ):
-                bigger = line[pair_num+1] if pair_diffrence[0]>0 else line[pair_num]
-                grid[ (bigger-abs(pair_diffrence))[0]: bigger[0]+1, line[pair_num][1] ] = 1
-    for i in range(1000*1000):
-        x=500
-        y=0
+        for pair_num in range(len(line) - 1):
+            pair_diffrence = line[pair_num + 1] - line[pair_num]
+            if (pair_diffrence[0] == 0):
+                bigger = line[pair_num + 1] if pair_diffrence[1] > 0 else line[pair_num]
+                grid[line[pair_num][0], (bigger - abs(pair_diffrence))[1]: bigger[1] + 1] = 1
+            elif (pair_diffrence[1] == 0):
+                bigger = line[pair_num + 1] if pair_diffrence[0] > 0 else line[pair_num]
+                grid[(bigger - abs(pair_diffrence))[0]: bigger[0] + 1, line[pair_num][1]] = 1
+    for i in range(1000 * 1000):
+        x = 500
+        y = 0
         for y in range(999):
-            if( grid[x,y+1] == 1 ):
-                if( grid[x-1,y+1] ==1 ):
-                    if( grid[ x+1, y+1 ]==1 ):
+            if (grid[x, y + 1] == 1):
+                if (grid[x - 1, y + 1] == 1):
+                    if (grid[x + 1, y + 1] == 1):
                         break
                     else:
-                        x+=1
+                        x += 1
                 else:
-                    x-=1
-        if(y==998):
+                    x -= 1
+        if (y == 998):
             return i
         else:
-            grid[x,y]=1
+            grid[x, y] = 1
+
 
 def puzzle_2022_14_2(input=None):
-    input_list = list(map(lambda x: list(map(  lambda y: np.array(list(map(int, y.split(',')))),x.split('->'))), input.split('\n')))
-    max_y = max([ num for line in  input_list for pair in line for num in pair][1::2])
-    print(max_y)
-    grid=np.zeros(shape=(1000,max_y+3),dtype=int)
-    grid[:,-1]=1
+    input_list = list(
+        map(lambda x: list(map(lambda y: np.array(list(map(int, y.split(',')))), x.split('->'))), input.split('\n')))
+    max_y = max([num for line in input_list for pair in line for num in pair][1::2])
+    grid = np.zeros(shape=(1000, max_y + 3), dtype=int)
+    grid[:, -1] = 1
     for line in input_list:
-        for pair_num in range(len(line)-1):
-            pair_diffrence = line[pair_num+1]-line[pair_num]
-            if( pair_diffrence[0]==0 ):
-                bigger = line[pair_num+1] if pair_diffrence[1]>0 else line[pair_num]
-                grid[ line[pair_num][0], (bigger-abs(pair_diffrence))[1]: bigger[1]+1 ] = 1
-            elif( pair_diffrence[1]==0 ):
-                bigger = line[pair_num+1] if pair_diffrence[0]>0 else line[pair_num]
-                grid[ (bigger-abs(pair_diffrence))[0]: bigger[0]+1, line[pair_num][1] ] = 1
+        for pair_num in range(len(line) - 1):
+            pair_diffrence = line[pair_num + 1] - line[pair_num]
+            if (pair_diffrence[0] == 0):
+                bigger = line[pair_num + 1] if pair_diffrence[1] > 0 else line[pair_num]
+                grid[line[pair_num][0], (bigger - abs(pair_diffrence))[1]: bigger[1] + 1] = 1
+            elif (pair_diffrence[1] == 0):
+                bigger = line[pair_num + 1] if pair_diffrence[0] > 0 else line[pair_num]
+                grid[(bigger - abs(pair_diffrence))[0]: bigger[0] + 1, line[pair_num][1]] = 1
 
-    for i in range(1000*max_y):
-        x=500
-        y=0
-        if( grid[x,y]==1 ):
+    for i in range(1000 * (max_y + 3)):
+        x = 500
+        y = 0
+        if (grid[x, y] == 1):
             return i
-        for y in range(max_y):
-            if( grid[x,y+1] == 1 ):
-                if( grid[x-1,y+1] ==1 ):
-                    if( grid[ x+1, y+1 ]==1 ):
+        for y in range(max_y + 2):
+            if (grid[x, y + 1] == 1):
+                if (grid[x - 1, y + 1] == 1):
+                    if (grid[x + 1, y + 1] == 1):
                         break
                     else:
-                        x+=1
+                        x += 1
                 else:
-                    x-=1
-        grid[x,y]=1
+                    x -= 1
+        grid[x, y] = 1
+
 
 if __name__ == '__main__':
     year = 2022
     day = 14
     part = 2
-    send = False
+    send = True
     puzzle = Puzzle(year=year, day=day, )
     fname = "puzzle_" + str(year) + "_" + str(day) + "_" + str(part)
     answer = globals()[fname](puzzle.input_data)
