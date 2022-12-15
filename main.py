@@ -686,12 +686,66 @@ def puzzle_2022_14_2(input=None):
                     x -= 1
         grid[x, y] = 1
 
+def puzzle_2022_15_1(input=None):
+    input_list = list(map(lambda y: y.split(' '), input.split('\n')))
+    sensors=np.array([( int(i[2][2:-1]), int(i[3][2:-1])) for i in input_list])
+    beacons=np.array([( int(i[8][2:-1]), int(i[9][2:])) for i in input_list])
+    differences=np.sum(np.abs(sensors-beacons),axis=1)
+    span = np.concatenate( [np.amax(np.concatenate([sensors,beacons]),axis=0),
+                           np.amin(np.concatenate([sensors, beacons]), axis=0)]).reshape((2,2))
+
+    span[0]+=max(differences)
+    span[1]-=max(differences)
+    y=2000000
+
+    sensors=sensors-span[1]
+    beacons=beacons-span[1]
+    y-=span[1,1]
+    span=span-span[1]
+
+    line_search = np.zeros(shape=(span[0,0]),dtype=bool)
+
+    line_search[ sensors[sensors[:,1]==y,0]] = 1
+    for sen, diff in zip(sensors, differences):
+        sequence_span = diff-abs(sen[1]-y)
+        line_search[ np.clip(np.arange(sen[0]-sequence_span,sen[0]+sequence_span+1),0,span[0,0]-1) ]=1
+
+    line_search[beacons[beacons[:,1]==y,0]] = 0
+    return sum(line_search)
+
+def puzzle_2022_15_2(input=None):
+    input_list = list(map(lambda y: y.split(' '), input.split('\n')))
+    sensors=np.array([( int(i[2][2:-1]), int(i[3][2:-1])) for i in input_list])
+    beacons=np.array([( int(i[8][2:-1]), int(i[9][2:])) for i in input_list])
+    differences=np.sum(np.abs(sensors-beacons),axis=1)
+    span = np.concatenate( [np.amax(np.concatenate([sensors,beacons]),axis=0),
+                           np.amin(np.concatenate([sensors, beacons]), axis=0)]).reshape((2,2))
+
+    grid_edge = 4000000
+    grid_search = np.zeros(shape=(grid_edge,grid_edge),dtype=bool)
+
+    #line_search[ sensors[]] = 1
+    for sen, diff in zip(sensors, differences):
+        for local_diff in range(diff+1):
+            for x in range(local_diff+1):
+                y=local_diff-x
+                directions= [(x,y),(-x,y),(x,-y),(-x,-y)]
+                for direction in directions:
+                    local_focus=sen-direction
+                    if( np.all((0<=local_focus) & (local_focus<grid_edge))):
+                        grid_search[tuple(local_focus)]=1
+
+    point=np.nonzero(grid_search==0)
+    print(point)
+    #line_search[beacons[beacons[:,1]==y,0]] = 0
+    #return sum(line_search)
 
 if __name__ == '__main__':
+    #print(puzzle_2022_15_2("Sensor at x=2, y=18: closest beacon is at x=-2, y=15\nSensor at x=9, y=16: closest beacon is at x=10, y=16\nSensor at x=13, y=2: closest beacon is at x=15, y=3\nSensor at x=12, y=14: closest beacon is at x=10, y=16\nSensor at x=10, y=20: closest beacon is at x=10, y=16\nSensor at x=14, y=17: closest beacon is at x=10, y=16\nSensor at x=8, y=7: closest beacon is at x=2, y=10\nSensor at x=2, y=0: closest beacon is at x=2, y=10\nSensor at x=0, y=11: closest beacon is at x=2, y=10\nSensor at x=20, y=14: closest beacon is at x=25, y=17\nSensor at x=17, y=20: closest beacon is at x=21, y=22\nSensor at x=16, y=7: closest beacon is at x=15, y=3\nSensor at x=14, y=3: closest beacon is at x=15, y=3\nSensor at x=20, y=1: closest beacon is at x=15, y=3"))
     year = 2022
-    day = 14
+    day = 15
     part = 2
-    send = True
+    send = False
     puzzle = Puzzle(year=year, day=day, )
     fname = "puzzle_" + str(year) + "_" + str(day) + "_" + str(part)
     answer = globals()[fname](puzzle.input_data)
