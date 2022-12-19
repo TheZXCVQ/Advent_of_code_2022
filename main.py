@@ -741,10 +741,19 @@ def puzzle_2022_15_2(input=None):
             return points[0] * grid_edge + points[1]
 
 
+def puzzle_2022_18_1(input=None):
+    input_list = list(map(lambda y: tuple(map(int, y.split(','))), input.split('\n')))
+    space = np.zeros(shape=(20, 20, 20), dtype=bool)
+    for i in input_list:
+        space[i] = True
+    return np.sum(space) * 6 - np.sum(space[1:, :, :] & space[:-1, :, :]) * 2 - np.sum(
+        space[:, 1:, :] & space[:, :-1, :]) * 2 - np.sum(space[:, :, 1:] & space[:, :, :-1]) * 2
+
+
 if __name__ == '__main__':
     year = 2022
-    day = 15
-    part = 2
+    day = 18
+    part = 1
     send = False
     puzzle = Puzzle(year=year, day=day, )
     fname = "puzzle_" + str(year) + "_" + str(day) + "_" + str(part)
