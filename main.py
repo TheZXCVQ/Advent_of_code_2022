@@ -750,9 +750,23 @@ def puzzle_2022_18_1(input=None):
         space[:, 1:, :] & space[:, :-1, :]) * 2 - np.sum(space[:, :, 1:] & space[:, :, :-1]) * 2
 
 
+def puzzle_2022_21_1(input=None):
+    def monkey_value(monkey_name, monkeys_dict):
+        instruction = monkeys_dict[monkey_name].split(' ')[1:]
+        if (len(instruction) == 1):
+            return int(instruction[0])
+        else:
+            val1 = monkey_value(instruction[0], monkeys_dict)
+            val2 = monkey_value(instruction[2], monkeys_dict)
+            return int(eval("val1" + instruction[1] + "val2"))
+
+    monkeys_instruction_dict = {line.split(':')[0]: line.split(':')[1] for line in input.split('\n')}
+    return monkey_value('root', monkeys_instruction_dict)
+
+
 if __name__ == '__main__':
     year = 2022
-    day = 18
+    day = 21
     part = 1
     send = False
     puzzle = Puzzle(year=year, day=day, )
